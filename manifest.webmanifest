@@ -1,0 +1,12 @@
+{
+  "name": "Bookshelf",
+  "short_name": "Bookshelf",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#fdf5ec",
+  "theme_color": "#eaeef3",
+  "icons": [
+    { "src": "icon.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
