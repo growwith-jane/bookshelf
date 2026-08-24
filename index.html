@@ -100,10 +100,17 @@ p.sub{font-size:13px;color:var(--muted);margin:0 0 24px}
 #timer{position:fixed;inset:0;background:var(--dark);z-index:60;display:none;
   flex-direction:column;justify-content:center;color:#fff;padding:24px}
 #timer.on{display:flex}
-#timer .bk{text-align:center;font-size:14px;color:rgba(255,255,255,.6);margin-bottom:16px}
-#timer .clock{text-align:center;font-size:60px;font-weight:200;letter-spacing:.02em;
-  font-variant-numeric:tabular-nums;margin-bottom:8px}
-#timer .acc{text-align:center;font-size:12px;color:rgba(255,255,255,.45);margin-bottom:40px}
+#timer .bk{text-align:center;font-size:14px;color:rgba(255,255,255,.6);margin-bottom:26px}
+/* 시간과 진행률을 같은 링 안에 둔다 — 읽는 중에도 남은 양이 보이게 */
+#timer .ring{width:236px;height:236px;margin:0 auto 16px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:conic-gradient(var(--green) 0 0%, rgba(255,255,255,.12) 0)}
+#timer .ring .in{width:206px;height:206px;border-radius:50%;background:var(--dark);
+  display:flex;flex-direction:column;align-items:center;justify-content:center}
+#timer .clock{text-align:center;font-size:44px;font-weight:200;letter-spacing:.02em;
+  font-variant-numeric:tabular-nums;margin:0}
+#timer .pgs{font-size:11px;color:rgba(255,255,255,.42);margin:8px 0 0}
+#timer .acc{text-align:center;font-size:12px;color:rgba(255,255,255,.45);margin-bottom:44px}
 #timer .btns{display:flex;gap:8px;justify-content:center}
 #timer .btns button{border-radius:var(--rs);min-height:56px;padding:0 28px;font-size:15px;font-weight:700}
 #timer .b1{background:rgba(255,255,255,.14);color:#fff}
@@ -203,30 +210,29 @@ p.sub{font-size:13px;color:var(--muted);margin:0 0 24px}
   border-radius:var(--rs);background:var(--soft);white-space:nowrap;flex:none}
 .tabs button.on{background:var(--blue);color:#fff}
 /* 책장 — 실제 선반에 책이 꽂힌 모양 */
-.srow{margin-bottom:20px}
-.sbooks{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;align-items:end}
-/* 선반은 글자 블록 바로 위에 깔아, 책이 그 위에 서 있게 만든다 */
-.sbooks::after{content:"";position:absolute;left:0;right:0;bottom:56px;height:11px;
-  border-radius:2px;
+.srow{margin-bottom:18px}
+/* 표지 줄 → 선반 → 글자 줄 순서로 쌓는다.
+   선반이 표지 줄의 바로 다음 형제라, 표지가 늘 선반에 정확히 닿는다. */
+.sbooks{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;align-items:end}
+.plank{height:10px;border-radius:2px;
   background:linear-gradient(180deg,var(--surface) 0%,#efe6d9 55%,#ddd2c0 100%);
   box-shadow:0 7px 11px -5px rgba(59,52,44,.30)}
-.shelf .it{position:relative;z-index:1;text-align:center;
-  display:flex;flex-direction:column;height:180px;padding:0 2px}
-.shelf .it .txt{height:56px;overflow:hidden;padding-top:14px}
-.shelf .it .nm{font-size:12px;font-weight:800;color:var(--ink);line-height:1.3;
-  margin:0 0 2px;word-break:keep-all}
-.shelf .it .au{font-size:10px;color:var(--muted);line-height:1.3;margin:0;word-break:keep-all}
-.shelf .it .grow{flex:1}
-.shelf .it .cvwrap{position:relative;width:100%;max-width:82px;margin:0 auto}
+.scaps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding-top:12px}
+.shelf .it{display:flex;flex-direction:column;align-items:center;text-align:center}
+/* 표지 박스는 모든 책이 82x115로 같다 — 쪽수에 따라 달라지지 않는다 */
+.shelf .it .cvwrap{position:relative;width:82px;height:115px}
 .shelf .it .cv{width:100%;height:100%;border-radius:2px 4px 4px 2px;
-  box-shadow:0 6px 10px -3px rgba(59,52,44,.32),
+  box-shadow:0 5px 9px -3px rgba(59,52,44,.34),
              inset 3px 0 0 rgba(0,0,0,.14), inset 5px 0 0 rgba(255,255,255,.14)}
 .shelf .it .prog{position:absolute;left:0;right:0;bottom:0;height:4px;
   background:rgba(0,0,0,.22);border-radius:0 0 4px 2px;overflow:hidden}
 .shelf .it .prog i{display:block;height:100%;background:var(--terracotta)}
-.plank{height:11px;border-radius:2px;margin-top:-1px;
-  background:linear-gradient(180deg,var(--surface) 0%,#efe6d9 55%,#ddd2c0 100%);
-  box-shadow:0 7px 11px -5px rgba(59,52,44,.30)}
+/* 제목칸을 2줄 높이로 고정해, 긴 제목이 아랫줄 책을 밀지 않게 한다 */
+.scap{text-align:center;display:block;width:100%}
+.scap .nm{font-size:12px;font-weight:800;color:var(--ink);line-height:1.3;
+  height:34px;overflow:hidden;margin:0;word-break:keep-all}
+.scap .au{font-size:10px;color:var(--muted);line-height:1.3;margin:2px 0 0;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* 책 상세 */
 .dhead{display:flex;gap:16px;margin-bottom:24px}
@@ -305,7 +311,10 @@ p.sub{font-size:13px;color:var(--muted);margin:0 0 24px}
 </div>
 <div id="timer">
   <p class="bk" id="tmBook"></p>
-  <p class="clock" id="tmClock">00:00:00</p>
+  <div class="ring" id="tmRing"><div class="in">
+    <p class="clock" id="tmClock">00:00:00</p>
+    <p class="pgs" id="tmPgs"></p>
+  </div></div>
   <p class="acc" id="tmAcc"></p>
   <div class="btns">
     <button class="b1" id="tmPause">일시정지</button>
@@ -470,6 +479,12 @@ function tmSeconds(){
 function renderClock(){
   document.getElementById('tmClock').textContent = clockText(tmSeconds());
   var b = book(TM.bookId);
+  /* 링은 이 책의 누적 진행률을 보여준다 */
+  var pct = (b && b.pages) ? Math.round(b.currentPage / b.pages * 100) : 0;
+  document.getElementById('tmRing').style.background =
+    'conic-gradient(var(--green) 0 ' + pct + '%, rgba(255,255,255,.12) 0)';
+  document.getElementById('tmPgs').textContent =
+    b ? (pct + '% · ' + b.currentPage + ' / ' + b.pages + '쪽') : '';
   var acc = secOn(today()) + tmSeconds();
   document.getElementById('tmAcc').textContent =
     '오늘 누적 ' + durText(acc) + ' · 이 책에 ' + durText(bookSeconds(TM.bookId) + tmSeconds());
@@ -720,20 +735,23 @@ function renderShelf(){
     for(var i = 0; i < list.length; i += 3) rows.push(list.slice(i, i + 3));
 
     h += '<div class="shelf">' + rows.map(function(row){
-      return '<div class="srow"><div class="sbooks">' + row.map(function(b){
+      /* 표지 / 선반 / 글자를 각각 한 줄로 분리한다 */
+      var books = row.map(function(b){
         var pct = b.pages ? Math.round(b.currentPage / b.pages * 100) : 0;
-        /* 두께가 다른 책들이 꽂힌 느낌이 나게 쪽수로 높이를 조금씩 달리한다 */
-        var hgt = 116 + Math.min(26, Math.round((b.pages || 200) / 30));
         var bar = (b.status === 'reading' && pct > 0)
           ? '<div class="prog"><i style="width:' + pct + '%"></i></div>' : '';
         return '<button class="it" data-book="' + b.id + '">' +
-               '<div class="grow"></div>' +
-               '<div class="cvwrap" style="height:' + hgt + 'px">' +
-               coverHtml(b) + bar + '</div>' +
-               '<div class="txt"><p class="nm">' + esc(b.title) + '</p>' +
-               '<p class="au">' + esc(b.author || '저자 미상') + '</p></div>' +
-               '</button>';
-      }).join('') + '</div></div>';
+               '<div class="cvwrap">' + coverHtml(b) + bar + '</div></button>';
+      }).join('');
+      /* 제목을 눌러도 책이 열리도록 표지와 같은 data-book을 준다 */
+      var caps = row.map(function(b){
+        return '<button class="scap" data-book="' + b.id + '"><p class="nm">' +
+               esc(b.title) + '</p>' +
+               '<p class="au">' + esc(b.author || '저자 미상') + '</p></button>';
+      }).join('');
+      return '<div class="srow"><div class="sbooks">' + books + '</div>' +
+             '<div class="plank"></div>' +
+             '<div class="scaps">' + caps + '</div></div>';
     }).join('') + '</div>';
 
     if(rest > 0){
