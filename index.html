@@ -203,15 +203,21 @@ p.sub{font-size:13px;color:var(--muted);margin:0 0 24px}
   border-radius:var(--rs);background:var(--soft);white-space:nowrap;flex:none}
 .tabs button.on{background:var(--blue);color:#fff}
 /* 책장 — 실제 선반에 책이 꽂힌 모양 */
-.srow{margin-bottom:28px}
-.sbooks{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;align-items:end}
-.shelf .it{text-align:center;display:flex;flex-direction:column;height:198px;padding:0 2px}
-.shelf .it .txt{height:48px;overflow:hidden}
+.srow{margin-bottom:20px}
+.sbooks{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;align-items:end}
+/* 선반은 글자 블록 바로 위에 깔아, 책이 그 위에 서 있게 만든다 */
+.sbooks::after{content:"";position:absolute;left:0;right:0;bottom:56px;height:11px;
+  border-radius:2px;
+  background:linear-gradient(180deg,var(--surface) 0%,#efe6d9 55%,#ddd2c0 100%);
+  box-shadow:0 7px 11px -5px rgba(59,52,44,.30)}
+.shelf .it{position:relative;z-index:1;text-align:center;
+  display:flex;flex-direction:column;height:180px;padding:0 2px}
+.shelf .it .txt{height:56px;overflow:hidden;padding-top:14px}
 .shelf .it .nm{font-size:12px;font-weight:800;color:var(--ink);line-height:1.3;
   margin:0 0 2px;word-break:keep-all}
 .shelf .it .au{font-size:10px;color:var(--muted);line-height:1.3;margin:0;word-break:keep-all}
 .shelf .it .grow{flex:1}
-.shelf .it .cvwrap{position:relative;width:100%;max-width:96px;margin:0 auto}
+.shelf .it .cvwrap{position:relative;width:100%;max-width:82px;margin:0 auto}
 .shelf .it .cv{width:100%;height:100%;border-radius:2px 4px 4px 2px;
   box-shadow:0 6px 10px -3px rgba(59,52,44,.32),
              inset 3px 0 0 rgba(0,0,0,.14), inset 5px 0 0 rgba(255,255,255,.14)}
@@ -311,7 +317,9 @@ p.sub{font-size:13px;color:var(--muted);margin:0 0 24px}
 /* ============ 저장소 ============ */
 var KEY = 'reading-app-v1';
 var S = { books: [], sessions: [] };
-var UI = { tab: 'home', bookId: null, shelfTab: 'reading', calMonth: null };
+var SHELF_STEP = 12;   /* 한 번에 보여주는 책 수 (한 줄 3권 x 4줄) */
+var UI = { tab: 'home', bookId: null, shelfTab: 'reading', calMonth: null,
+           shelfMore: SHELF_STEP };
 
 function load(){
   try{
@@ -693,7 +701,17 @@ function renderShelf(){
     return '<button data-shelf="'+t.id+'" class="'+(UI.shelfTab===t.id?'on':'')+'">'+t.label+' '+n+'</button>';
   }).join('') +'</div>';
 
-  var list = S.books.filter(function(b){ return b.status===UI.shelfTab; });
+  /* 최근 것이 위로 오게 정렬한다 — 그래야 "더 보기"가 자연스럽다 */
+  var keyOf = { done:'finishedAt', reading:'lastRead', wish:'addedAt' }[UI.shelfTab] || 'addedAt';
+  var list = S.books.filter(function(b){ return b.status===UI.shelfTab; })
+    .sort(function(a, c){
+      return String(c[keyOf] || c.addedAt || '').localeCompare(String(a[keyOf] || a.addedAt || ''));
+    });
+
+  var limit = UI.shelfMore || SHELF_STEP;
+  var rest = Math.max(0, list.length - limit);
+  list = list.slice(0, limit);
+
   if(!list.length){
     h += '<div class="empty"><span class="big">▤</span>이 칸은 아직 비어 있어요.</div>';
   }else{
@@ -709,13 +727,19 @@ function renderShelf(){
         var bar = (b.status === 'reading' && pct > 0)
           ? '<div class="prog"><i style="width:' + pct + '%"></i></div>' : '';
         return '<button class="it" data-book="' + b.id + '">' +
-               '<div class="txt"><p class="nm">' + esc(b.title) + '</p>' +
-               '<p class="au">' + esc(b.author || '저자 미상') + '</p></div>' +
                '<div class="grow"></div>' +
                '<div class="cvwrap" style="height:' + hgt + 'px">' +
-               coverHtml(b) + bar + '</div></button>';
-      }).join('') + '</div><div class="plank"></div></div>';
+               coverHtml(b) + bar + '</div>' +
+               '<div class="txt"><p class="nm">' + esc(b.title) + '</p>' +
+               '<p class="au">' + esc(b.author || '저자 미상') + '</p></div>' +
+               '</button>';
+      }).join('') + '</div></div>';
     }).join('') + '</div>';
+
+    if(rest > 0){
+      h += '<button class="btn ghost sm" data-act="more">더 보기 ('+rest+'권 더)</button>'+
+           '<div style="height:16px"></div>';
+    }
   }
   h += '<div style="height:24px"></div><button class="btn" data-act="add">+ 책 등록하기</button>';
   view(h);
@@ -1455,7 +1479,12 @@ document.addEventListener('click', function(e){
   var t;
 
   if((t = e.target.closest('[data-tab]'))){ UI.tab = t.dataset.tab; UI.bookId = null; return render(); }
-  if((t = e.target.closest('[data-shelf]'))){ UI.shelfTab = t.dataset.shelf; return render(); }
+  if((t = e.target.closest('[data-shelf]'))){
+    UI.shelfTab = t.dataset.shelf; UI.shelfMore = SHELF_STEP; return render();
+  }
+  if(e.target.closest('[data-act="more"]')){
+    UI.shelfMore = (UI.shelfMore || SHELF_STEP) + SHELF_STEP; return render();
+  }
   if((t = e.target.closest('[data-mon]'))){
     var ym = UI.calMonth.split('-').map(Number);
     var d = new Date(ym[0], ym[1]-1 + parseInt(t.dataset.mon,10), 1);
