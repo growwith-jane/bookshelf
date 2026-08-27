@@ -3,8 +3,8 @@
   "short_name": "Bookshelf",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#fdf5ec",
-  "theme_color": "#eaeef3",
+  "background_color": "#F7F5EE",
+  "theme_color": "#F7F5EE",
   "icons": [
     { "src": "icon.png", "sizes": "512x512", "type": "image/png" },
     { "src": "icon.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
