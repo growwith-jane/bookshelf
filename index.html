@@ -34,12 +34,12 @@
   --r:20px; --rs:14px;
   --shadow:0 2px 14px rgba(31,42,36,.07);
 }
-#app[data-tab="home"]{--page:#44614F;--accent:#B4635E;--tabaccent:#44614F;
+#app[data-surface="home"]{--page:#44614F;--accent:#B4635E;--tabaccent:#44614F;
   --on-page:#F7F5EE;--on-page-sub:rgba(247,245,238,.66);
   --cardbg:#F7F5EE;--cardline:transparent}
-#app[data-tab="calendar"]{--page:#EFDCD9;--accent:#B4635E;--tabaccent:#B4635E}
-#app[data-tab="shelf"]{--page:#F7F5EE;--accent:#44614F;--tabaccent:#1F2A24}
-#app[data-tab="settings"]{--page:#F7F5EE;--accent:#44614F;--tabaccent:#8A8B80}
+#app[data-surface="calendar"]{--page:#EFDCD9;--accent:#B4635E;--tabaccent:#B4635E}
+#app[data-surface="shelf"]{--page:#F7F5EE;--accent:#44614F;--tabaccent:#1F2A24}
+#app[data-surface="settings"]{--page:#F7F5EE;--accent:#44614F;--tabaccent:#8A8B80}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
 body{margin:0;font-family:var(--font);font-size:15px;color:var(--text);
@@ -621,7 +621,7 @@ function renderTabs(){
 function render(){
   renderTabs();
   /* 탭 하나만 알려주면 색은 CSS가 알아서 바꾼다 (책 상세는 책장 색을 따른다) */
-  document.getElementById('app').dataset.tab =
+  document.getElementById('app').dataset.surface =
     (UI.bookId && book(UI.bookId)) ? 'shelf' : UI.tab;
   if(UI.bookId && book(UI.bookId)) return renderDetail();
   UI.bookId = null;
