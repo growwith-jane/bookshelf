@@ -274,6 +274,10 @@ p.sub{font-size:13px;color:var(--on-page-sub);margin:0 0 24px}
 .qt{margin-bottom:8px;padding:14px}
 .qt .qx{margin:0 0 8px;font-size:14px;line-height:1.75;color:var(--ink);white-space:pre-wrap;word-break:break-word}
 .qt .qm{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted)}
+.nw{margin-bottom:8px;padding:14px}
+.nw .nt{display:block;font-size:14px;font-weight:800;color:var(--ink);margin-bottom:6px}
+.nw .nd{margin:0 0 8px;font-size:13px;line-height:1.7;color:var(--text)}
+.nw .nx{font-size:12px;color:var(--muted)}
 .qt .qm .qb{display:flex;flex:none;gap:2px;margin:-6px -8px -6px 0}
 .qt .qm button{font-size:12px;color:var(--muted);padding:6px 8px}
 .stars button{color:#e2d9cb;padding:4px 6px}
@@ -949,6 +953,14 @@ function renderDetail(){
 }
 
 /* ---------- 설정 ---------- */
+/* 업데이트 소식 — 새 소식은 맨 위에 한 칸 추가한다 */
+var NEWS = [
+  { date:'2026-09-02', title:'문장 남기기',
+    body:'책 상세 화면에 <b>남긴 문장</b> 칸이 생겼어요. 마음에 닿은 문장을 쪽수와 함께 남길 수 있어요. 남긴 뒤에도 고치거나 지울 수 있어요.' },
+  { date:'2026-09-02', title:'책 분야 고르기',
+    body:'책을 등록할 때 <b>분야</b>를 고를 수 있어요. 예전에 등록한 책은 미분류로 보이는데, 책을 열고 <b>정보 수정</b>에서 채워주시면 돼요.' }
+];
+
 function renderSettings(){
   var h = '<h1 class="head">설정</h1><p class="sub">기록은 이 브라우저 안에만 저장돼요</p>';
   h += '<div class="sect">내 기록</div>';
@@ -978,6 +990,13 @@ function renderSettings(){
        '2. <b>오늘</b> 화면에서 읽기 시작을 눌러요<br>'+
        '3. 다 읽고 종료를 누른 뒤 <b>몇 쪽까지</b> 읽었는지 입력해요<br>'+
        '4. 책 상세에서 <b>목표일</b>을 정하면 하루 몫이 자동으로 나뉘어요</div>';
+
+  h += '<div class="sect">업데이트 소식</div>';
+  h += NEWS.map(function(n){
+    return '<div class="card nw"><span class="nt">'+n.title+'</span>'+
+           '<p class="nd">'+n.body+'</p>'+
+           '<span class="nx">'+n.date+'</span></div>';
+  }).join('');
 
   h += '<div class="sect">위험</div>';
   h += '<button class="btn danger" data-act="reset">모든 기록 지우기</button>';
