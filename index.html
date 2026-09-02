@@ -274,7 +274,8 @@ p.sub{font-size:13px;color:var(--on-page-sub);margin:0 0 24px}
 .qt{margin-bottom:8px;padding:14px}
 .qt .qx{margin:0 0 8px;font-size:14px;line-height:1.75;color:var(--ink);white-space:pre-wrap;word-break:break-word}
 .qt .qm{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted)}
-.qt .qm button{font-size:12px;color:var(--muted);padding:6px 8px;margin:-6px -8px -6px 0}
+.qt .qm .qb{display:flex;flex:none;gap:2px;margin:-6px -8px -6px 0}
+.qt .qm button{font-size:12px;color:var(--muted);padding:6px 8px}
 .stars button{color:#e2d9cb;padding:4px 6px}
 .stars button.on{color:var(--terracotta)}
 
@@ -928,7 +929,9 @@ function renderDetail(){
     h += b.quotes.slice().reverse().map(function(q){
       return '<div class="card qt"><p class="qx">“'+esc(q.text)+'”</p>'+
              '<div class="qm"><span>'+(q.page ? q.page+'쪽 · ' : '')+q.date+'</span>'+
-             '<button data-act="delQuote" data-id="'+q.id+'">지우기</button></div></div>';
+             '<span class="qb">'+
+             '<button data-act="editQuote" data-id="'+q.id+'">고치기</button>'+
+             '<button data-act="delQuote" data-id="'+q.id+'">지우기</button></span></div></div>';
     }).join('');
   }
   h += '<button class="btn ghost sm" data-act="quote" data-id="'+b.id+'">문장 남기기</button>';
@@ -1359,25 +1362,34 @@ function openNoteSheet(id){
 
 /* 인증 카드 */
 /* 남긴 문장 */
-function openQuoteSheet(id){
+/* qid를 주면 그 문장을 고치는 창이 된다 */
+function openQuoteSheet(id, qid){
+  var b = book(id);
+  var q = (b && qid) ? b.quotes.filter(function(x){ return x.id === qid; })[0] : null;
   openSheet(
-    '<h3>문장 남기기</h3>'+
+    '<h3>'+(q ? '문장 고치기' : '문장 남기기')+'</h3>'+
     '<div class="field"><label>마음에 닿은 문장</label>'+
-    '<textarea id="fQuote" placeholder="예) 습관은 복리로 쌓인다."></textarea></div>'+
+    '<textarea id="fQuote" placeholder="예) 습관은 복리로 쌓인다.">'+esc(q?q.text:'')+'</textarea></div>'+
     '<div class="field"><label>몇 쪽 (몰라도 괜찮아요)</label>'+
-    '<input id="fQPage" type="number" inputmode="numeric" placeholder="예) 27"></div>'+
-    '<button class="btn" data-act="saveQuote" data-id="'+id+'">저장하기</button>'+
+    '<input id="fQPage" type="number" inputmode="numeric" placeholder="예) 27" value="'+((q&&q.page)?q.page:'')+'"></div>'+
+    '<button class="btn" data-act="saveQuote" data-id="'+id+'"'+(q?' data-qid="'+q.id+'"':'')+'>저장하기</button>'+
     '<div style="height:8px"></div>'+
     '<button class="btn ghost sm" data-act="closeSheet">취소</button>'
   );
 }
-function saveQuote(id){
+function saveQuote(id, qid){
   var b = book(id);
   if(!b) return;
   var text = el('fQuote').value.trim();
   if(!text){ alert('문장을 입력해주세요.'); return; }
   var p = parseInt(el('fQPage').value, 10);
-  b.quotes.push({ id:uid(), text:text, page:(p > 0 ? p : null), date:today() });
+  var old = qid ? b.quotes.filter(function(x){ return x.id === qid; })[0] : null;
+  if(old){
+    /* 고칠 때는 처음 남긴 날짜를 그대로 둔다 */
+    old.text = text; old.page = (p > 0 ? p : null);
+  }else{
+    b.quotes.push({ id:uid(), text:text, page:(p > 0 ? p : null), date:today() });
+  }
   if(!save()){
     alert('저장 공간이 부족해요.\n설정 → 기록 내보내기로 백업한 뒤 다시 해주세요.');
   }
@@ -1642,7 +1654,8 @@ document.addEventListener('click', function(e){
     var b3 = book(id); b3.note = el('fNote').value.trim(); save(); closeSheet(); return render();
   }
   if(act==='quote') return openQuoteSheet(id);
-  if(act==='saveQuote') return saveQuote(id);
+  if(act==='editQuote') return openQuoteSheet(UI.bookId, id);
+  if(act==='saveQuote') return saveQuote(id, t.dataset.qid);
   if(act==='delQuote'){
     var bq = book(UI.bookId);
     if(!bq) return;
