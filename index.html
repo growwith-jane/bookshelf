@@ -262,6 +262,9 @@ p.sub{font-size:13px;color:var(--on-page-sub);margin:0 0 24px}
 .dhead .cv{width:88px;height:124px;flex:none}
 .dhead .t{font-size:19px;font-weight:800;color:var(--ink);margin:0 0 4px;line-height:1.3}
 .dhead .a{font-size:13px;color:var(--muted);margin:0 0 12px}
+.dhead .gnr{display:inline-block;margin:0 0 12px;padding:3px 10px;border-radius:999px;
+  font-size:11px;font-weight:800;color:var(--green);background:#E9EEE7;border:1px solid var(--line)}
+.dhead .gnr.off{color:var(--muted);background:transparent}
 .kv{display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:12px 0;
   border-bottom:1px solid var(--line);font-size:13px}
 .kv:last-child{border-bottom:0}
@@ -369,6 +372,7 @@ function normalize(){
     if(b.publisher == null) b.publisher = '';
     if(b.isbn13 == null)    b.isbn13 = '';
     if(b.coverUrl == null)  b.coverUrl = '';
+    if(b.genre == null)     b.genre = '';      /* 분야가 없던 시절 책은 미분류 */
   });
 }
 /* 이 브라우저에서 기록 저장이 되는지 미리 확인한다.
@@ -835,6 +839,7 @@ function renderDetail(){
   h += '<div class="dhead">'+coverHtml(b)+
        '<div style="min-width:0"><p class="t">'+esc(b.title)+'</p>'+
        '<p class="a">'+esc(b.author||'저자 미상')+' · '+b.pages+'쪽</p>'+
+       '<span class="gnr'+(b.genre?'':' off')+'">'+esc(genreLabel(b.genre))+'</span>'+
        '<div class="bar"><i style="width:'+pct+'%"></i></div>'+
        '<span class="pg">'+b.currentPage+' / '+b.pages+'쪽 · '+pct+'%</span></div></div>';
 
@@ -1121,6 +1126,27 @@ function setPages(n){
   }
 }
 
+/* ============ 분야 ============ */
+/* 통계를 낼 때 항목이 갈리지 않도록 목록에서만 고르게 한다.
+   저장은 id로 하니까 나중에 이름을 바꿔도 쌓인 기록이 안 깨진다. */
+var GENRES = [
+  { id:'lit',   label:'문학·소설' },
+  { id:'essay', label:'에세이' },
+  { id:'human', label:'인문·역사' },
+  { id:'self',  label:'자기계발' },
+  { id:'biz',   label:'경제·경영' },
+  { id:'etc',   label:'기타' }
+];
+function genreLabel(id){
+  var g = GENRES.filter(function(x){ return x.id === id; })[0];
+  return g ? g.label : '미분류';
+}
+function genreOptions(sel){
+  return '<option value="">미분류</option>' + GENRES.map(function(g){
+    return '<option value="'+g.id+'"'+(g.id===sel?' selected':'')+'>'+g.label+'</option>';
+  }).join('');
+}
+
 /* 책 등록 / 수정 */
 function openBookSheet(id){
   var b = id ? book(id) : null;
@@ -1133,6 +1159,8 @@ function openBookSheet(id){
     '<div class="srch" id="srch"></div>'+
     '<div class="field"><label>저자</label><input id="fAuthor" value="'+esc(b?b.author:'')+'" placeholder="예) 제임스 클리어"></div>'+
     '<div class="field"><label>출판사</label><input id="fPublisher" value="'+esc(b?b.publisher:'')+'" placeholder="예) 비즈니스북스"></div>'+
+    '<div class="field"><label>분야</label><select id="fGenre">'+genreOptions(b?b.genre:'')+'</select>'+
+      '<div class="hint">나중에 분야별로 통계를 낼 때 쓰여요.</div></div>'+
     '<div class="field"><label>총 쪽수 *</label><input id="fPages" type="number" inputmode="numeric" value="'+(b?b.pages:'')+'" placeholder="예) 320"><div class="hint" id="pageHint" style="display:none"></div></div>'+
     (b ? '<div class="field"><label>지금까지 읽은 쪽</label><input id="fCur" type="number" inputmode="numeric" value="'+b.currentPage+'"></div>' : '')+
     '<div class="field"><label>표지</label><div class="coverpick">'+
@@ -1211,9 +1239,10 @@ function saveBook(id){
 
   var author    = el('fAuthor').value.trim();
   var publisher = el('fPublisher') ? el('fPublisher').value.trim() : '';
+  var genre     = el('fGenre') ? el('fGenre').value : '';
 
   if(b){
-    b.title = title; b.author = author; b.publisher = publisher;
+    b.title = title; b.author = author; b.publisher = publisher; b.genre = genre;
     b.pages = pages; b.cover = cover;
     var cur = parseInt(el('fCur').value, 10);
     b.currentPage = Math.max(0, Math.min(pages, isNaN(cur)?b.currentPage:cur));
@@ -1228,7 +1257,7 @@ function saveBook(id){
     b.isbn13 = SHEET_PICK.isbn13 || '';
     b.coverUrl = SHEET_PICK.coverUrl || '';
   }else{
-    b = { id:uid(), title:title, author:author, publisher:publisher, pages:pages,
+    b = { id:uid(), title:title, author:author, publisher:publisher, pages:pages, genre:genre,
           isbn13:SHEET_PICK.isbn13||'', coverUrl:SHEET_PICK.coverUrl||'',
           cover:cover, photo:SHEET_PHOTO, status:status,
           currentPage: status==='done'?pages:0,
