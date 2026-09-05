@@ -16,7 +16,7 @@
   /* 확정 팔레트 (핸드오프 3a — 탭별 서페이스) */
   --primary:#44614F; --primary-deep:#2E4636;
   --rose:#B4635E; --rose-soft:#EFDCD9; --rose-tint:#F3E1DF;
-  --rose-ondark:#E7B4B0; --rose-dim:#A15450;
+  --rose-ondark:#E7B4B0; --rose-dim:#A15450; --oxblood:#8F3434;
   --ink:#1F2A24; --text:#5F6259; --muted:#8A8B80;
   --line:#E6E4D9; --track:#E6E5DA;
   --surface:#FFFDF7; --soft:#ECEAE0; --dark:#2E4636;
@@ -325,7 +325,7 @@ p.sub{font-size:13px;color:var(--on-page-sub);margin:0 0 24px}
 .nx .p{font-weight:700;color:var(--ink)}
 
 /* 인증 카드 */
-.proof{background:linear-gradient(170deg,#f3ede3,#eee5d6);padding:28px 24px;border-radius:var(--r);
+.proof{position:relative;background:linear-gradient(170deg,#f3ede3,#eee5d6);padding:28px 24px;border-radius:var(--r);
   text-align:center;margin-bottom:16px}
 .proof .cv{width:184px;height:256px;margin:0 auto 20px}
 .proof .t{font-size:17px;font-weight:800;color:var(--ink);margin:0 0 2px}
@@ -336,6 +336,19 @@ p.sub{font-size:13px;color:var(--on-page-sub);margin:0 0 24px}
 .proof .kpi .k{font-size:10px;color:var(--muted)}
 .proof .quote{font-size:13px;color:var(--text);line-height:1.6;margin:8px 0 16px;word-break:keep-all}
 .proof .brand{font-size:10px;font-weight:700;color:var(--blue-light);letter-spacing:.3em}
+/* 완독 도장 — 고무도장을 비스듬히 찍은 모양.
+   점선 테두리로 잉크가 끊긴 느낌을 내고, 초록 고리를 3px 밀어 겹쳐서
+   2도 인쇄가 살짝 어긋난 인상을 만든다. 저장 이미지도 같은 모양으로 그린다(drawStamp). */
+.stamp{position:absolute;left:50%;margin-left:70px;top:172px;width:92px;height:92px;
+  transform:rotate(-11deg);pointer-events:none}
+.stamp .gh{position:absolute;inset:0;border-radius:50%;border:2.4px dashed var(--green);
+  opacity:.36;transform:translate(3px,3px)}
+.stamp .ring{position:absolute;inset:0;border-radius:50%;border:2.4px dashed var(--oxblood)}
+.stamp .in{position:absolute;inset:7px;border-radius:50%;border:1px dashed var(--oxblood)}
+.stamp .tx{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:2px;color:var(--oxblood)}
+.stamp .tx .w{font-size:26px;font-weight:800;letter-spacing:-.02em;line-height:1}
+.stamp .tx .d{font-size:9px;font-weight:800;letter-spacing:.18em}
 </style>
 </head>
 <body>
@@ -1428,6 +1441,9 @@ function openProof(id){
     '<h3>완독을 축하해요</h3>'+
     '<div class="proof" id="proofCard">'+
       coverHtml(b)+
+      '<div class="stamp"><div class="gh"></div><div class="ring"></div><div class="in"></div>'+
+        '<div class="tx"><span class="w">완독</span>'+
+        '<span class="d">'+(b.finishedAt||today()).slice(5).replace('-','.')+'</span></div></div>'+
       '<p class="t">'+esc(b.title)+'</p>'+
       '<p class="a">'+esc(b.author||'')+'</p>'+
       '<div class="kpi">'+
@@ -1480,6 +1496,31 @@ function saveProofImage(id){
     drawProof(b, null);
   }
 }
+/* 완독 도장 — .stamp 의 캔버스 판. 두 곳이 같은 모양이어야 해서 값도 같은 비율로 맞췄다. */
+function drawStamp(x, cx, cy, r, dateStr, F){
+  x.save();
+  x.translate(cx, cy);
+  x.rotate(-11 * Math.PI / 180);
+  x.textAlign = 'center';
+
+  /* 어긋난 2도 인쇄 — 초록 고리를 먼저, 살짝 밀어서 */
+  x.globalAlpha = .36; x.strokeStyle = '#44614F'; x.lineWidth = r*.052;
+  x.setLineDash([r*.42, r*.05]);
+  x.beginPath(); x.arc(r*.065, r*.065, r, 0, Math.PI*2); x.stroke();
+
+  x.globalAlpha = 1; x.strokeStyle = '#8F3434';
+  x.beginPath(); x.arc(0, 0, r, 0, Math.PI*2); x.stroke();
+  x.lineWidth = r*.022; x.setLineDash([r*.3, r*.05]);
+  x.beginPath(); x.arc(0, 0, r*.85, 0, Math.PI*2); x.stroke();
+  x.setLineDash([]);
+
+  x.fillStyle = '#8F3434';
+  x.font = 'bold ' + Math.round(r*.55) + 'px ' + F;
+  x.fillText('완독', 0, r*.05);
+  x.font = 'bold ' + Math.round(r*.195) + 'px ' + F;
+  x.fillText(dateStr.slice(5).replace('-', '.'), 0, r*.37);
+  x.restore();
+}
 function drawProof(b, photo){
   var st = proofStats(b);
   var W = 750, H = 1200;
@@ -1515,6 +1556,10 @@ function drawProof(b, photo){
     x.font = 'bold 20px '+F; x.textAlign = 'center';
     wrapText(x, b.title, W/2, cy + ch - 28, cw - 28, 24);
   }
+
+  /* 화면 카드와 같은 도장. 카드와 저장본은 표지가 차지하는 비율이 달라서,
+     좌표를 그대로 옮기지 않고 표지 크기에 맞춰 잡는다 (표지 오른쪽 모서리에 걸치게). */
+  drawStamp(x, cx + cw + cw*0.13, cy + ch*0.74, cw*0.25, b.finishedAt || today(), F);
 
   x.textAlign = 'center';
   x.fillStyle = '#3b342c'; x.font = 'bold 36px '+F;
