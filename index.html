@@ -273,6 +273,9 @@ p.sub{font-size:13px;color:var(--on-page-sub);margin:0 0 24px}
 .kv .k{color:var(--muted)}
 .kv .v{font-weight:700;color:var(--ink)}
 .stars{font-size:20px;letter-spacing:.1em;color:var(--terracotta)}
+.pdone{margin-top:12px;padding-top:12px;border-top:1px solid var(--line);
+  display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+.pdone .hl{font-size:14px;font-weight:800;color:var(--accent)}
 .qt{margin-bottom:8px;padding:14px}
 .qt .qx{margin:0 0 8px;font-size:14px;line-height:1.75;color:var(--ink);white-space:pre-wrap;word-break:break-word}
 .qt .qm{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted)}
@@ -854,6 +857,24 @@ function planCells(b, pi){
   return out.join('');
 }
 
+/* 완독한 뒤에는 플랜을 "목표를 지켰는지"로 보여준다.
+   플랜 데이터는 완독해도 지워지지 않고 그대로 남아 있다. */
+function mdDate(s){ var d = parseISO(s); return (d.getMonth()+1)+'월 '+d.getDate()+'일'; }
+function planResultHtml(b){
+  if(!b.plan || !b.finishedAt) return '';
+  var gap  = diffDays(b.finishedAt, b.plan.target);   /* 0보다 크면 목표보다 빨리 읽은 것 */
+  var span = diffDays(b.plan.start, b.finishedAt) + 1;
+  if(span < 1) span = 1;
+  var msg  = gap > 0 ? gap + '일 먼저 읽었어요'
+           : gap < 0 ? (-gap) + '일 늦게 읽었어요'
+           : '목표일에 딱 맞췄어요';
+  return '<div class="pdone">'+
+           '<span class="ln">목표 '+mdDate(b.plan.target)+' · 완독 '+mdDate(b.finishedAt)+'</span>'+
+           '<span class="hl">'+msg+'</span>'+
+           '<span class="ln">플랜 세운 날부터 '+span+'일 걸렸어요</span>'+
+         '</div>';
+}
+
 function renderDetail(){
   var b = book(UI.bookId);
   var sec = bookSeconds(b.id);
@@ -888,7 +909,8 @@ function renderDetail(){
   h += '<div class="sect">완독 플랜</div>';
   var pi = planInfo(b);
   if(b.status === 'done'){
-    h += '<div class="card" style="text-align:center">다 읽은 책이에요 🎉</div>';
+    h += '<div class="card" style="text-align:center">다 읽은 책이에요 🎉'+
+         planResultHtml(b)+'</div>';
   }else if(!pi){
     h += '<div class="card" style="margin-bottom:8px">목표일을 정하면 하루에 몇 쪽씩 읽어야 하는지 자동으로 나눠드려요.</div>'+
          '<button class="btn ghost" data-act="plan" data-id="'+b.id+'">목표일 정하기</button>';
