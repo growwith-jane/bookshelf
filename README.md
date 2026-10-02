@@ -15,7 +15,7 @@
 ![저장](https://img.shields.io/badge/%EA%B8%B0%EB%A1%9D-%EB%82%B4%20%ED%8F%B0%EC%97%90%EB%A7%8C-93AE9B)
 ![배포](https://img.shields.io/badge/deploy-Vercel-000000?logo=vercel&logoColor=white)
 
-<img src="docs_images/hero.png" width="420" alt="Bookshelf — 오늘 화면">
+<img src="hero.png" width="420" alt="Bookshelf — 오늘 화면">
 
 [시작하기](#3분이면-시작해요) · [기능](#이런-걸-할-수-있어요) · [화면](#이런-모습이에요) · [사용법](#화면별-사용법) · [백업](#기록-지키기) · [개발](#만든-방법)
 
@@ -49,9 +49,9 @@
 
 <table>
 <tr>
-<td width="33%" valign="top"><img src="docs_images/plan.png" alt="완독 플랜"><br><sub><b>완독 플랜</b> — 목표일을 정하면 하루 몫이 자동으로 나뉘어요</sub></td>
-<td width="33%" valign="top"><img src="docs_images/calendar.png" alt="완독 캘린더"><br><sub><b>완독 캘린더</b> — 오래 읽은 날일수록 진하게</sub></td>
-<td width="33%" valign="top"><img src="docs_images/shelf.png" alt="내 책장"><br><sub><b>내 책장</b> — 제목만 검색하면 표지가 꽂혀요</sub></td>
+<td width="33%" valign="top"><img src="plan.png" alt="완독 플랜"><br><sub><b>완독 플랜</b> — 목표일을 정하면 하루 몫이 자동으로 나뉘어요</sub></td>
+<td width="33%" valign="top"><img src="calendar.png" alt="완독 캘린더"><br><sub><b>완독 캘린더</b> — 오래 읽은 날일수록 진하게</sub></td>
+<td width="33%" valign="top"><img src="shelf.png" alt="내 책장"><br><sub><b>내 책장</b> — 제목만 검색하면 표지가 꽂혀요</sub></td>
 </tr>
 </table>
 
