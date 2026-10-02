@@ -351,6 +351,8 @@ p.sub{font-size:13px;color:var(--on-page-sub);margin:0 0 24px}
   justify-content:center;gap:2px;color:var(--oxblood)}
 .stamp .tx .w{font-size:26px;font-weight:800;letter-spacing:-.02em;line-height:1}
 .stamp .tx .d{font-size:9px;font-weight:800;letter-spacing:.18em}
+/* 좁은 화면(320px 등)에서는 도장이 카드 밖으로 밀려 잘려서, 표지 쪽으로 당긴다 */
+@media (max-width:340px){ .stamp{margin-left:52px} }
 </style>
 </head>
 <body>
