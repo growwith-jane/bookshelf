@@ -157,6 +157,10 @@ cd bookshelf
 
 탭마다 화면 배경이 바뀌어요 — 오늘은 딥그린, 캘린더는 소프트로즈, 책장과 설정은 아이보리.
 
+## 쓰임새
+
+개인 프로젝트예요. 코드를 참고하시는 건 환영하고, 가져다 쓰고 싶으시면 [이슈](https://github.com/growwith-jane/bookshelf/issues)로 물어봐 주세요.
+
 ---
 
 <div align="center">
