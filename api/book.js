@@ -25,7 +25,7 @@ export default async function handler(req, res) {
   try {
     const params = isbn13
       ? `query=${encodeURIComponent(isbn13)}&target=isbn&size=1`
-      : `query=${encodeURIComponent(q)}&target=title&size=5`;
+      : `query=${encodeURIComponent(q)}&size=5`;
 
     const response = await fetch(`${BASE}?${params}`, {
       headers: { Authorization: `KakaoAK ${KEY.trim()}` },
