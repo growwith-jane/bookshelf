@@ -571,7 +571,7 @@ function el(id){ return document.getElementById(id); }
 var PAL = [['#a8562f','#7d3d20'],['#7f9068','#586848'],['#b5894a','#8a6229'],
            ['#8a7c6b','#5f5448'],['#9c6b5c','#6f463a'],['#a35a56','#77393a']];
 
-/* 표지 — 직접 올린 사진 > 알라딘 표지 > 색 + 제목 순서로 쓴다 */
+/* 표지 — 직접 올린 사진 > 검색으로 받은 표지 > 색 + 제목 순서로 쓴다 */
 function coverPic(b){ return b.photo || b.coverUrl || ''; }
 /* 그림 뒤에 색 표지를 한 겹 깔아둔다.
    인터넷이 끊기거나 표지 주소가 죽어도 깨진 아이콘 대신 색 표지가 보인다. */
@@ -1005,6 +1005,8 @@ function renderDetail(){
 /* ---------- 설정 ---------- */
 /* 업데이트 소식 — 새 소식은 맨 위에 한 칸 추가한다 */
 var NEWS = [
+  { date:'2026-11-20', title:'책 검색이 바뀌었어요',
+    body:'도서 정보를 주던 곳이 서비스를 종료해 <b>카카오 책 검색</b>으로 옮겼어요. 이제 제목뿐 아니라 <b>저자 이름으로도</b> 찾을 수 있어요. 다만 <b>쪽수는 직접 입력</b>해주셔야 해요.' },
   { date:'2026-09-06', title:'완독 후 플랜표',
     body:'완독한 뒤에도 책 상세의 <b>완독 플랜</b>에서 처음 세운 플랜표를 볼 수 있어요.' },
   { date:'2026-09-05', title:'완독 도장',
@@ -1287,7 +1289,7 @@ function openBookSheet(id){
     if(!t) return;
     [].forEach.call(this.children, function(c){ c.classList.remove('on'); });
     t.classList.add('on');
-    SHEET_PHOTO = null;            /* 색을 고르면 사진도 알라딘 표지도 내린다 */
+    SHEET_PHOTO = null;            /* 색을 고르면 사진도 검색 표지도 내린다 */
     SHEET_PICK.coverUrl = '';
     drawCoverPreview();
   };
@@ -1528,7 +1530,8 @@ function saveProofImage(id){
   var src = coverPic(b);
   if(src){
     var im = new Image();
-    /* 알라딘 표지는 다른 서버의 그림이라, 이 표시가 없으면 인증 이미지 저장이 막힌다 */
+    /* 검색 표지는 다른 서버의 그림이라 이 표시가 필요하다.
+       카카오 표지 서버는 이걸 허용하지 않아서 onerror 로 떨어지고, 색 표지로 대신 그린다 */
     if(/^https?:/i.test(src)) im.crossOrigin = 'anonymous';
     im.onload = function(){ drawProof(b, im); };
     im.onerror = function(){ drawProof(b, null); };   /* 표지를 못 받으면 색 표지로 그린다 */
