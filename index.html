@@ -358,7 +358,7 @@ p.sub{font-size:13px;color:var(--on-page-sub);margin:0 0 24px}
 <body>
 <div id="app">
   <main id="view"></main>
-  <footer id="credit">도서 DB 제공 : 알라딘 인터넷서점(<a href="https://www.aladin.co.kr" target="_blank" rel="noopener">www.aladin.co.kr</a>)</footer>
+  <footer id="credit">도서 DB 제공 : 카카오 책 검색(<a href="https://developers.kakao.com" target="_blank" rel="noopener">developers.kakao.com</a>)</footer>
   <nav id="tabbar"></nav>
 </div>
 <div id="timer">
@@ -1108,8 +1108,8 @@ function saveSession(sec){
   if(finished) openProof(b);
 }
 
-/* ============ 책 검색 (알라딘) ============ */
-/* 표지 DB는 우리 서버(/api/book)를 거쳐서 받는다 — 알라딘을 직접 부르지 않는다.
+/* ============ 책 검색 (카카오 책) ============ */
+/* 표지 DB는 우리 서버(/api/book)를 거쳐서 받는다 — 카카오를 직접 부르지 않는다.
    파일로 열었을 때(file://)는 부를 서버가 없어서 검색 대신 안내만 한다. */
 var BOOK_API = /^https?:$/.test(location.protocol) ? '/api/book' : null;
 var SRCH = { timer:null, seq:0, list:[] };
