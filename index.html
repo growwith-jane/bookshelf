@@ -1530,9 +1530,13 @@ function saveProofImage(id){
   var src = coverPic(b);
   if(src){
     var im = new Image();
-    /* 검색 표지는 다른 서버의 그림이라 이 표시가 필요하다.
-       카카오 표지 서버는 이걸 허용하지 않아서 onerror 로 떨어지고, 색 표지로 대신 그린다 */
-    if(/^https?:/i.test(src)) im.crossOrigin = 'anonymous';
+    /* 검색 표지는 다른 서버의 그림이라 그대로는 저장본에 못 넣는다.
+       우리 서버(/api/cover)를 거쳐 받으면 같은 출처가 되어 들어간다.
+       직접 올린 사진(data:)은 그대로 쓰고, 서버가 없으면 onerror 로 색 표지가 그려진다 */
+    if(/^https?:/i.test(src)){
+      im.crossOrigin = 'anonymous';
+      src = '/api/cover?u=' + encodeURIComponent(src);
+    }
     im.onload = function(){ drawProof(b, im); };
     im.onerror = function(){ drawProof(b, null); };   /* 표지를 못 받으면 색 표지로 그린다 */
     im.src = src;
